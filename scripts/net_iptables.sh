@@ -24,10 +24,27 @@ fi
 
 echo "--> 检测到当前主网卡为: $INTERFACE"
 
-# 3. 安装依赖工具
+# 3. 换源（使用非 CDN 镜像）并安装依赖工具
+echo "--> 正在换源为 MIT 镜像（非 CDN）..."
+SOURCE_FILE="/etc/apt/sources.list.d/debian.sources"
+cat > "$SOURCE_FILE" <<SRCEOF
+Types: deb
+URIs: http://debian.csail.mit.edu/debian
+Suites: bookworm bookworm-updates bookworm-backports
+Components: main contrib non-free non-free-firmware
+Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+
+Types: deb
+URIs: http://debian.csail.mit.edu/debian-security
+Suites: bookworm-security
+Components: main contrib non-free non-free-firmware
+Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+SRCEOF
+
 echo "--> 正在更新软件源并安装工具..."
+rm -rf /var/lib/apt/lists/*
 apt-get update -y
-apt-get install vnstat bc -y
+apt-get install -y vnstat bc
 
 # 4. 配置并启动 vnStat
 echo "--> 配置 vnStat..."
